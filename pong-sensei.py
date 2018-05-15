@@ -434,8 +434,8 @@ def reset_balle() :
     if "Legendaire" in globals() :
         canvas.delete(Legendaire.objet)
         canvas.delete(Legendaire.objetTEXTE)
-    if a==15 : finduJEU("edmond")
-    if b==15 : finduJEU("berangere")
+    if a==10 : finduJEU("edmond")
+    if b==10 : finduJEU("berangere")
 
 def RandomBonus() :
     """fonction qui sélectionne, au hasard, un bonus.
