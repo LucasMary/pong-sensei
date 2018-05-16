@@ -101,17 +101,24 @@ class Timer :
         canvas.delete(self.timer)
         del self
 
+
 couleur_stade=1
 couleurR = 255
 couleurG = 0
 couleurB = 0
+couleurDEF="white"
 class couleur :
     def __init__(self,item) :
         self.objet= item
         self.couleur()
 
     def couleur(self) :
-        global couleur_stade, couleurB, couleurG, couleurR, commencerLeJeu
+        global commencerLeJeu
+        if commencerLeJeu==True : canvas.itemconfig(self.objet,fill=couleurDEF)
+        fen.after(10,self.couleur)
+
+    def varcouleur() :
+        global couleur_stade, couleurB, couleurG, couleurR, commencerLeJeu, couleurDEF
         if commencerLeJeu==True :
             #tout les stades et leurs détection
             if couleurR==255 and couleurG==0 and couleurB==0 : couleur_stade=1
@@ -130,9 +137,8 @@ class couleur :
             #création de la couleur sous la forme #rrrgggbbb en ajoutant des 0 si nécéssaire
             couleurDEF='#%02x%02x%02x' % (couleurR,couleurG,couleurB)
             #définition de la couleur
-            canvas.itemconfig(self.objet,fill =couleurDEF, outline=couleurDEF)
 
-        fen.after(10,self.couleur)
+        fen.after(10,couleur.varcouleur)
 
 """fonction bonus, faisant, à un interval de temps défini, apparaitre un bonus
 il y a 3 types de bonus : Commun, Super, Légendaire.
@@ -147,7 +153,7 @@ class Bonus :
         if bonustype=="commun" : self.objet = canvas.create_rectangle(posX-10,posY-10,posX+10,posY+10,fill="blue",outline="red",width=3)
         if bonustype=="super" : self.objet = canvas.create_rectangle(posX-30,posY-30,posX+30,posY+30,fill="yellow",outline="brown",width=5)
         if bonustype=="legendaire" :
-            self.objet = canvas.create_rectangle(posX-50,posY-50,posX+50,posY+50,fill="white",outline="#1F1F1F",width=10)
+            self.objet = canvas.create_rectangle(posX-50,posY-50,posX+50,posY+50,fill="white",outline="#1F1F1F",width=0)
             self.objetTEXTE = canvas.create_text(posX,posY,text="?",fill="white",font=("Arial",50))
             self.couleur = couleur(self.objet)
         self.x = posX
@@ -156,7 +162,7 @@ class Bonus :
 
     def collision(self) :
         global BerangereX,BerangereY,EdmondX,EdmondY
-        if self.type=="commun" : dim = 20
+        if self.type=="commun" : dim = 30
         if self.type=="super" : dim = 40
         if self.type=="legendaire" : dim = 60
         #test Bérangere dans le Bonus, on test avec les 4 points
@@ -272,11 +278,12 @@ class communBONUS :
 
 class FausseBalle :
     def __init__(self,y) :
+        global vitesseBalle
         self.x = 350
         self.y = y
-        self.Vx = random.randint(3,9)
-        self.Vy = random.randint(3,9)
-        self.objet = canvas.create_oval(self.x-10,y-10,self.x+10,y+10,fill="gray",outline="gray")
+        self.Vx = random.randint(vitesseBalle-5,vitesseBalle+5)
+        self.Vy = random.randint(-9,9)
+        self.objet = canvas.create_oval(self.x-10,y-10,self.x+10,y+10,fill="gray",width=0)
         self.couleur = couleur(self.objet)
 
     def switchVx(self) :
@@ -303,28 +310,29 @@ class FausseBalle :
 
 
 def bonus(bonusVALUE) :
-    global Bcommun,Bsuper,Ecommun,Esuper,Legendaire
+    global Bcommun,Bsuper,Ecommun,Esuper,Legendaire,commencerLeJeu
     JoueurQuiBeneficieDuBonus = random.randint(0,1) #0 : Bérangère, 1 : Edmond
-    if bonusVALUE==1 :
-        #code d'apparition d'un bonus commun
-        if JoueurQuiBeneficieDuBonus==0 :
-            Bcommun = Bonus(random.randint(10,340),random.randint(10,690),"commun")
-            Bcommun.collision()
-        if JoueurQuiBeneficieDuBonus==1 :
-            Ecommun = Bonus(random.randint(360,690),random.randint(10,690),"commun")
-            Ecommun.collision()
-    if bonusVALUE==2 :
-        #code d'apparition d'un bonus Super
-        if JoueurQuiBeneficieDuBonus==0 :
-            Bsuper = Bonus(random.randint(30,320), random.randint(30,670),"super")
-            Bsuper.collision()
-        if JoueurQuiBeneficieDuBonus==1 :
-            Esuper = Bonus(random.randint(390,670), random.randint(30,670),"super")
-            Esuper.collision()
-    if bonusVALUE==3 :
-        #code d'apparition d'un bonus Légendaire
-        Legendaire = Bonus(350,random.randint(50,650),"legendaire")
-        Legendaire.collision()
+    if commencerLeJeu==True :
+        if bonusVALUE==1 :
+            #code d'apparition d'un bonus commun
+            if JoueurQuiBeneficieDuBonus==0 :
+                Bcommun = Bonus(random.randint(10,340),random.randint(10,690),"commun")
+                Bcommun.collision()
+            if JoueurQuiBeneficieDuBonus==1 :
+                Ecommun = Bonus(random.randint(360,690),random.randint(10,690),"commun")
+                Ecommun.collision()
+        if bonusVALUE==2 :
+            #code d'apparition d'un bonus Super
+            if JoueurQuiBeneficieDuBonus==0 :
+                Bsuper = Bonus(random.randint(30,320), random.randint(30,670),"super")
+                Bsuper.collision()
+            if JoueurQuiBeneficieDuBonus==1 :
+                Esuper = Bonus(random.randint(390,670), random.randint(30,670),"super")
+                Esuper.collision()
+        if bonusVALUE==3 :
+            #code d'apparition d'un bonus Légendaire
+            Legendaire = Bonus(350,random.randint(50,650),"legendaire")
+            Legendaire.collision()
 
 
 
@@ -361,7 +369,7 @@ vitesseBalle = 7
 V1X, V1Y = vitesseBalle, 4
 #Position en x et y de la balle + sa création
 Balle1X, Balle1Y = 350,350
-Balle1 = canvas.create_oval(340, 340, 360, 360, fill = 'white')
+Balle1 = canvas.create_oval(340, 340, 360, 360, fill = 'white',width=0)
 Balle_multi = couleur(Balle1)
 #mise en place joueurs
 Berangere = canvas.create_rectangle(BerangereX-5,BerangereY-50,BerangereX+5,BerangereY+50,width=0,fill='blue')
@@ -394,7 +402,7 @@ def deplacement_balle():
             futurY = Balle1Y + V1Y
             futurX = Balle1X + V1X
              #Définition du score
-    if Balle1X <= 2:
+    if Balle1X <= 10:
         canvas.delete(can1)
         a = a+1
         can1 = canvas.create_text(370,15, text="{}".format(a), fill="white", font=('Arial',14, 'bold'))
@@ -411,13 +419,15 @@ def augmentationVitesseBalle() :
     fen.after(5000,augmentationVitesseBalle)
 
 
+atteindre=10
 def reset_balle() :
     #fonction qui se déclenche quand un joueur perd.
-    global commencerLeJeu,canvas,Balle1,Balle1X,Balle1Y,Bcommun,Ecommun,Bsuper,Esuper,Legendaire,BerangereX,BerangereY,EdmondX,EdmondY,vitesseBalle
+    global commencerLeJeu,canvas,Balle1,Balle1X,Balle1Y,Bcommun,Ecommun,Bsuper,Esuper,Legendaire,BerangereX,BerangereY,EdmondX,EdmondY,vitesseBalle,atteindre
     commencerLeJeu=False
     vitesseBalle=7
+    V1X=random.randint(-1,1)
     canvas.coords(Balle1,340, 340, 360, 360) #replacement balle
-    canvas.itemconfig(Balle1,fill ="white", outline="white") #colorisation blanche de la balle
+    canvas.itemconfig(Balle1,fill ="white") #colorisation blanche de la balle
     Balle1X, Balle1Y = 350, 350
     EdmondX = 600
     EdmondY = 350
@@ -434,8 +444,8 @@ def reset_balle() :
     if "Legendaire" in globals() :
         canvas.delete(Legendaire.objet)
         canvas.delete(Legendaire.objetTEXTE)
-    if a==10 : finduJEU("edmond")
-    if b==10 : finduJEU("berangere")
+    if a==atteindre : finduJEU("edmond")
+    if b==atteindre : finduJEU("berangere")
 
 def RandomBonus() :
     """fonction qui sélectionne, au hasard, un bonus.
@@ -449,18 +459,30 @@ def RandomBonus() :
         if 41<=n<=70 : bonus(2)
         if 71<=n<=100 : bonus(3)
 
+VICTOIREfile=VICTOIREimage=0
 def finduJEU(joueur) :
-    global Berangere,Edmond,Limite,Balle1,PeutJouer,canvas,can1,can2,a,b
+    global Berangere,Edmond,Limite,Balle1,PeutJouer,canvas,can1,can2,a,b,VICTOIREfile,VICTOIREimage
     PeutJouer=False
     trucsasupprimer = [Berangere,Edmond,Limite,Balle1,can1,can2]
     for i in trucsasupprimer : canvas.delete(i)
-    fond = canvas.create_rectangle(0,0,700,700,fill="white")
-    canvas.tag_lower(fond)
-    if joueur=="berangere" : canvas.create_text(350,250,text="B R A V O", fill="blue", font=('Arial', 100, 'bold'))
-    if joueur=="edmond" : canvas.create_text(350,250,text="B R A V O", fill="red", font=('Arial', 100, 'bold'))
-    berangereSCORE = canvas.create_text(200,500,text=str(b),fill="black",font=('Arial', 100, 'bold'))
-    edmondSCORE = canvas.create_text(500,500,text=str(a),fill="black",font=('Arial', 100, 'bold'))
-    tiret = canvas.create_text(350,500,text="-",fill="black",font=('Arial', 100, 'bold'))
+
+    if joueur=="berangere" :
+        VICTOIREfile=PhotoImage(file="berangere.png")
+        VICTOIREimage= canvas.create_image(0,0,anchor="nw",image=VICTOIREfile)
+        tiret = canvas.create_text(350,500,text="-",fill="#cee1cd",font=('Arial', 100, 'bold'))
+    if joueur=="edmond" :
+        VICTOIREfile=PhotoImage(file="edmond.png")
+        VICTOIREimage= canvas.create_image(0,0,anchor="nw",image=VICTOIREfile)
+        tiret = canvas.create_text(350,500,text="-",fill="#c4bdd6",font=('Arial', 100, 'bold'))
+    berangereSCOREombre = canvas.create_text(205,505,text=str(b),fill="black",font=('Arial', 100, 'bold'))
+    berangereSCORE = canvas.create_text(200,500,text=str(b),fill="#2a6d7c",font=('Arial', 100, 'bold'))
+    emdmondSCOREombre = canvas.create_text(505,505,text=str(a),fill="black",font=('Arial', 100, 'bold'))
+    edmondSCORE = canvas.create_text(500,500,text=str(a),fill="#eb2762",font=('Arial', 100, 'bold'))
+    tiretombre = canvas.create_text(355,505,text="-",fill="black",font=('Arial', 100, 'bold'))
+    canvas.tag_raise(tiret)
+
+
+
 
 
 logo=PhotoImage(file="logo.png")
@@ -514,4 +536,5 @@ musique()
 creerimages()
 fondtoujoursaufond()
 augmentationVitesseBalle()
+couleur.varcouleur()
 fen.mainloop()
