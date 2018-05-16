@@ -94,7 +94,9 @@ class Timer :
                 if "Bloqueur" in globals() : Bloqueur.autodestruction()
                 self.autodestruction()
             else : fen.after(1000,self.compteur)
-        else : self.autodestruction()
+        else :
+            Bloqueur.autodestruction()
+            self.autodestruction()
 
     def autodestruction(self) :
         #on détruit alors l'objet timer sur tkinter, et l'instance de la classe
@@ -218,11 +220,12 @@ class legendaireBONUS :
             fen.after(50,self.clignotement)
 
     def autodestruction(self) :
-        global commencerLeJeu, Legendaire
+        global commencerLeJeu, Legendaire,IlyAunBonus
         #on supprime l'objet tkinter, puis l'instance de classe
         canvas.delete(self.objet)
         del self
         #si le jeu n'est pas perdu, on relance l'opération de bonus.
+        IlyAunBonus=False
         if commencerLeJeu==True : fen.after(8000,RandomBonus)
 
 class superBONUS :
@@ -245,6 +248,7 @@ class superBONUS :
         canvas.delete(self.objet)
         del self
         #si le jeu n'est pas perdu, on relance l'opération de bonus.
+        IlyAunBonus=False
         if commencerLeJeu==True : fen.after(8000,RandomBonus)
 
 class communBONUS :
@@ -272,8 +276,10 @@ class communBONUS :
             if self.on==True : fen.after(3000,self.encore)
 
     def autodestruction(self) :
+        for i in self.listeobjets : i.autodestruction()
         self.on = False
         del self
+        IlyAunBonus=False
         if commencerLeJeu==True : fen.after(8000,RandomBonus)
 
 class FausseBalle :
@@ -419,7 +425,7 @@ def augmentationVitesseBalle() :
     fen.after(5000,augmentationVitesseBalle)
 
 
-atteindre=10
+atteindre=5
 def reset_balle() :
     #fonction qui se déclenche quand un joueur perd.
     global commencerLeJeu,canvas,Balle1,Balle1X,Balle1Y,Bcommun,Ecommun,Bsuper,Esuper,Legendaire,BerangereX,BerangereY,EdmondX,EdmondY,vitesseBalle,atteindre
@@ -447,13 +453,14 @@ def reset_balle() :
     if a==atteindre : finduJEU("edmond")
     if b==atteindre : finduJEU("berangere")
 
+IlyAunBonus=False
 def RandomBonus() :
     """fonction qui sélectionne, au hasard, un bonus.
     - Un bonus commun a 40% de chances d'apparaitre
     - Un bonus super a 30% de chances d'apparaitre
     - Un bonus légendaire a 20% de chances d'apparaitre"""
-    global commencerLeJeu
-    if commencerLeJeu==True :
+    global commencerLeJeu,IlyAunBonus
+    if commencerLeJeu==True and IlyAunBonus==False:
         n = random.randint(0,100)
         if 0<=n<=40 : bonus(1)
         if 41<=n<=70 : bonus(2)
