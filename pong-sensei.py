@@ -149,6 +149,7 @@ Le Bonus Super apparait en plus gros, sur le même coté du joueur, et lui donne
 Le Bonus Légendaire apparait en très gros, sur la limite, et procure un bonus majeur utilisable en temps voulu.
 BonusVALUE vaut 1 pour Commun, 2 pour Super, 3 pour légendaire.
 """
+esttouche=False
 class Bonus :
 
     def __init__(self,posX,posY,bonustype) : #fonction constructeur
@@ -163,24 +164,43 @@ class Bonus :
         self.type = bonustype
 
     def collision(self) :
-        global BerangereX,BerangereY,EdmondX,EdmondY
-        if self.type=="commun" : dim = 30
-        if self.type=="super" : dim = 40
-        if self.type=="legendaire" : dim = 60
-        #test Bérangere dans le Bonus, on test avec les 4 points
-        if self.x-dim<=BerangereX-5<=self.x+dim and self.y-dim<=BerangereY-50<=self.y+dim : self.get(1)
-        elif self.x-dim<=BerangereX+5<=self.x+dim and self.y-dim<=BerangereY+50<=self.y+dim : self.get(1)
-        elif self.x-dim<=BerangereX-5<=self.x+dim and self.y-dim<=BerangereY+50<=self.y-dim : self.get(1)
-        elif self.x-dim<=BerangereX+5<=self.x+dim and self.y-dim<=BerangereY-50<=self.y-dim : self.get(1)
-        #test Edmond
-        elif self.x-dim<=EdmondX-5<=self.x+dim and self.y-dim<=EdmondY-50<=self.y+dim : self.get(2)
-        elif self.x-dim<=EdmondX+5<=self.x+dim and self.y-dim<=EdmondY+50<=self.y+dim : self.get(2)
-        elif self.x-dim<=EdmondX-5<=self.x+dim and self.y-dim<=EdmondY+50<=self.y-dim : self.get(2)
-        elif self.x-dim<=EdmondX+5<=self.x+dim and self.y-dim<=EdmondY-50<=self.y-dim : self.get(2)
-        else : fen.after(40,self.collision)
+        global BerangereX,BerangereY,EdmondX,EdmondY,esttouche
+        if esttouche==False :
+            if self.type=="commun" : dim = 30
+            if self.type=="super" : dim = 40
+            if self.type=="legendaire" : dim = 60
+            #test Bérangere dans le Bonus, on test avec les 4 points
+            if self.x-dim<=BerangereX-5<=self.x+dim and self.y-dim<=BerangereY-50<=self.y+dim :
+                self.get(1)
+                return 1
+            elif self.x-dim<=BerangereX+5<=self.x+dim and self.y-dim<=BerangereY+50<=self.y+dim :
+                self.get(1)
+                return 1
+            elif self.x-dim<=BerangereX-5<=self.x+dim and self.y-dim<=BerangereY+50<=self.y-dim :
+                self.get(1)
+                return 1
+            elif self.x-dim<=BerangereX+5<=self.x+dim and self.y-dim<=BerangereY-50<=self.y-dim :
+                self.get(1)
+                return 1
+            #test Edmond
+            elif self.x-dim<=EdmondX-5<=self.x+dim and self.y-dim<=EdmondY-50<=self.y+dim :
+                self.get(2)
+                return 1
+            elif self.x-dim<=EdmondX+5<=self.x+dim and self.y-dim<=EdmondY+50<=self.y+dim :
+                self.get(2)
+                return 1
+            elif self.x-dim<=EdmondX-5<=self.x+dim and self.y-dim<=EdmondY+50<=self.y-dim :
+                self.get(2)
+                return 1
+            elif self.x-dim<=EdmondX+5<=self.x+dim and self.y-dim<=EdmondY-50<=self.y-dim :
+                self.get(2)
+                return 1
+            else : fen.after(40,self.collision)
 
     def get(self,joueur) : #fonction se déclenchant si un des deux joueurs entre en collision avec un bonus
-       global Bloqueur
+       global Bloqueur,esttouche
+       for i in (self.x,self.y) : i=800
+       esttouche=True
        canvas.delete(self.objet)
        if self.type=="commun" :
         if joueur==1 : Bloqueur = communBONUS(1)
@@ -193,6 +213,7 @@ class Bonus :
         #on appelle un Bloqueur
         if joueur==1 : Bloqueur = superBONUS(1)
         if joueur==2 : Bloqueur = superBONUS(2)
+
 
 
 class legendaireBONUS :
@@ -222,6 +243,7 @@ class legendaireBONUS :
     def autodestruction(self) :
         global commencerLeJeu, Legendaire,IlyAunBonus
         #on supprime l'objet tkinter, puis l'instance de classe
+        for i in (self.joueur,self.isblack) : i=800
         canvas.delete(self.objet)
         del self
         #si le jeu n'est pas perdu, on relance l'opération de bonus.
@@ -245,6 +267,7 @@ class superBONUS :
     def autodestruction(self) :
         global commencerLeJeu, Legendaire
         #on supprime l'objet tkinter, puis l'instance de classe
+        for i in (self.joueur,self.couleur,self.timer) : i=800
         canvas.delete(self.objet)
         del self
         #si le jeu n'est pas perdu, on relance l'opération de bonus.
@@ -277,6 +300,7 @@ class communBONUS :
 
     def autodestruction(self) :
         for i in self.listeobjets : i.autodestruction()
+        for i in (self.joueur,self.listeobjets,self.timer) : i=800
         self.on = False
         del self
         IlyAunBonus=False
@@ -459,7 +483,8 @@ def RandomBonus() :
     - Un bonus commun a 40% de chances d'apparaitre
     - Un bonus super a 30% de chances d'apparaitre
     - Un bonus légendaire a 20% de chances d'apparaitre"""
-    global commencerLeJeu,IlyAunBonus
+    global commencerLeJeu,IlyAunBonus,esttouche
+    esttouche=False
     if commencerLeJeu==True and IlyAunBonus==False:
         n = random.randint(0,100)
         if 0<=n<=40 : bonus(1)
